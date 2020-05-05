@@ -1,30 +1,54 @@
 <?php
 
-include __DIR__ . '/src/Model/IndexModel.php';
-include __DIR__ . '/src/Model/UserModel.php';
-include __DIR__ . '/src/View/View.php';
-include __DIR__ . '/src/Controller/Index.php';
-include __DIR__ . '/src/Controller/User.php';
+// Simple 'Hello-World' example in PHP and MVC-Pattern
 
-if(isset($_GET['controller']) && is_string($_GET['controller'])) {
-    $controller = ucfirst(htmlspecialchars($_GET['controller']));
-} else {
-    $controller = 'index';
+class Model
+{
+	public $text;
+
+	public function __construct() {
+		$this->text = 'Hello World';
+	}
 }
 
-if(isset($_GET['action']) && is_string($_GET['action'])) {
-    $action = htmlspecialchars($_GET['action']);
-} else {
-    $action = 'index';
+class View
+{
+	private $model;
+
+	public function __construct(Model $model)
+	{
+		$this->model = $model;
+	}
+
+	public function output()
+	{
+		return '<a href="index.php?action=textclicked">' . $this->model->text . '</a>';
+	}
 }
 
-echo 'Controller: ' . $controller;
-echo '<br>';
-echo 'Action: ' . $action;
-// -----------------------------------------------------------------------------
-echo '<br><hr>';
+class Controller
+{
+	private $model;
 
-if (isset($action)) {
-    $controller = new $controller();
-	echo $controller->{$action.'Action'}();
+	public function __construct(Model $model)
+	{
+		$this->model = $model;
+	}
+
+	public function textClicked()
+	{
+		$this->model->text = 'Text updated!';
+	}
 }
+
+$model = new Model();
+
+// It is important that the view and controller share the Model
+$controller = new Controller($model);
+$view = new View($model);
+
+if (isset($_GET['action']) && is_string($_GET['action'])) {
+	$controller->{$_GET['action']}();
+}
+
+echo $view->output();
